@@ -1,0 +1,101 @@
+#!/bin/bash
+
+cc=gcc
+ld=ld
+objcopy=objcopy
+ar=ar
+
+usage() {
+    cat <<-EOF
+	Usage: $0 [options]
+
+	Options include:
+	    --arch=ARCH             Architecture: arm or aarch64
+	    --plat=PLATFORM         Platform: virt or vexpress-a15
+	    --cpu=PROCESSOR         CPU: cortex-a15 or cortex-a57
+	    --cross-prefix=PREFIX   Cross compiler
+	    --cc=CC                 C compiler to use (blank is auto)
+	    --ld=LD                 Loader to use (blank is auto)
+EOF
+    exit 1
+}
+
+while [[ "$1" = -* ]]; do
+    opt="$1"; shift
+    arg=
+    if [[ "$opt" = *=* ]]; then
+	arg="${opt#*=}"
+	opt="${opt%%=*}"
+    fi
+    case "$opt" in
+    --arch)
+	    arch="$arg"
+	    ;;
+    --plat)
+	    plat="$arg"
+	    ;;
+    --cpu)
+	    cpu="$arg"
+	    ;;
+	--cross-prefix)
+	    cross="$arg"
+	    ;;
+	--cc)
+	    cc="$arg"
+	    ;;
+	--ld)
+	    ld="$arg"
+	    ;;
+	--help)
+	    usage
+	    ;;
+	*)
+	    usage
+	    ;;
+    esac
+done
+
+if [ -z "$arch" ]; then
+    cat <<-EOF
+	An architecture must be specified.  Either "--arch=arm" or "--arch=aarch64".
+EOF
+    exit 1
+
+fi
+
+if [ -z "$cpu" ]; then
+    if [ "$arch" = "arm" ]; then
+        cpu="cortex-a15"
+    elif [ "$arch" = "aarch64" ]; then
+        cpu="cortex-a57"
+    fi
+fi
+
+if [ -z "$plat" ]; then
+    plat="virt"
+fi
+
+if [ -z "$cross" ]; then
+    if [ "$arch" = "arm" ]; then
+        cross="arm-linux-gnueabi-"
+    elif [ "$arch" = "aarch64" ]; then
+        cross="aarch64-linux-gnu-"
+    fi
+fi
+
+if [ "$arch" = "arm" ]; then
+    cflags="-m$arch -mcpu=$cpu"
+fi
+
+# create the config
+cat <<EOF > config.mk
+export ARCH=$arch
+export PLAT=$plat
+export PROCESSOR=$cpu
+export CROSS=$cross
+export CC=$cross$cc
+export LD=$cross$ld
+export OBJCOPY=$cross$objcopy
+export AR=$cross$ar
+export CFLAGS+=$cflags
+EOF

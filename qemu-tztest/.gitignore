@@ -1,0 +1,10 @@
+*.a
+*.d
+*.o
+*.bin
+*.elf
+*.img
+*.swp
+*.lds
+cscope.*
+/config.mk

@@ -1,0 +1,108 @@
+CONFIGURE
+================
+Configure the test using ./configure before building.  For help with options
+use "-?"
+
+    $ ./configure -?
+
+As a short-cut it is only necessary to set the --arch and configure will
+assume the rest.
+
+    $ ./configure --arch=arm      ==> ASSUMES: --plat=virt --cpu=cortex-a15
+    $ ./configure --arch=aaarch64 ==> ASSUMES: --plat=virt --cpu=cortex-a57
+
+Finer options can be provided by manually setting the other options such
+as follows:
+
+    $ ./configure --plat=virt --cpu=cortex-a15
+
+BUILD
+================
+Once configured, the test can be built my simply using make.  This will produce
+an output test image that can be used with QEMU.
+
+    $ make
+
+The test image can also be built with debug verbosity for extended runtime
+messages by building as follows.
+
+    $ CFLAGS=-DDEBUG make
+
+To perform a full clean, the following command can be used.  It performs a
+standard clean along with clearing any generated build files and cscope files.
+
+    $ make distclean
+
+RUN
+================
+Using compatible machine and cpu properties, the output test image can be run
+using the following QEMU command line:
+
+    For example on AArch32:
+
+    $ ./arm-softmmu/qemu-system-arm -bios <TEST_ROOT>/tztest.img
+        -serial stdio -display none -m 1024 -machine type=virt -cpu cortex-a15
+
+    For example on AArch64:
+
+    $ aarch64-softmmu/qemu-system-aarch64 -bios <TEST_ROOT>/tztest.img
+        -serial stdio -display none -m 1024 -machine type=virt -cpu cortex-a57
+
+DEBUG
+================
+A number of facilities are provided for assiting in debugging.
+
+    1) As mentioned above, adding CFLAGS=-DDEBUG enables verbose message
+       output.
+    2) Corresponding ELF files are produced for each of the EL images packaged
+       in the test binary.
+    3) A gdbinit script is provided that includes custom commands for loading
+       and debugging at certain ELs and secure state.
+
+       Start QEMU with GDB enabled and waiting.
+
+            $ ./arm-softmmu/qemu-system-arm ... -s -S
+
+       Open the multi architecture version of GDB for debugging.  The standard
+       versions of GDB won't allow debugging of ARM, so this version must be
+       used.
+
+            $ gdb-multiarch
+
+       Next, the architecture of the EL to be debugged must be set...
+
+            (gdb) set arch aarch64
+            The target architecture is assumed to be aarch64
+
+       Then the custom commands can be used.  The options are:
+
+            load_el3   - loads the flash and RAM images for EL3
+            load_el1s  - loads the flash and RAM images for secure EL1
+            load_el1ns - loads the flash and RAM images for non-secure EL1
+            load_el0s  - loads the RAM image for secure EL0
+            load_el0ns - loads the RAM image for non-secure EL0
+
+       The command is simply issued at the GDB command line when needing to
+       debug a given EL.  For instance, to debug secure EL1 the following
+       command would be issued and the shown output should be seen:
+
+            (gdb) load_el1s
+            add symbol table from file "el1/secure/el1_sec.elf" at
+                .text_addr = 0xc000000000
+
+       Note: Symbols for multiple ELs can be loaded, but this can result in
+       occasional issues or errors due to each EL having its own distinct
+       address space.
+
+OUTPUT
+================
+When run, the test produces out put in the format:
+    "Test Heading:"
+        "Test case..." "RESULT"
+    "Validation complete.  Passed 'N' of 'M' tests."
+
+The test will automatically shutdown the QEMU machine if supported otherwise it
+will hang after the validation message.  It is not possible to run a subset of the tests at this time.
+
+
+

@@ -1,0 +1,436 @@
+Introduction
+============================
+This test framework is a QEMU bare metal test for validating ARM QEMU
+features.  It was specifically designed to test QEMU TrustZone support not
+fully verified by booting linux alone.
+
+The test consists of multiple images that execute at varying exception levels
+and execution modes.  Each image is built separately but share functionality
+where feasible.  The images utilize the standard ARM SVC and SMC instructions
+for communication between ELs.
+
+The design philosophy behind this test is to provide a simple framework for
+adding micro-functional tests that don't need the complexity of a full-fledged
+HLOS (High Level Operating System) or TEE (Trusted Exeution Environment).
+
+File structure and layout
+============================
+${ARCH} = Architecture for which the test is built. Currently, either "aarch64"
+          or "arm" are supported.  This is declared during configure using the
+          "--arch" option.
+
+${PLAT} = Machine platform for which the test is built.  Currently, either
+          "virt" or "vexpress-a15" are supported.  This is declared during
+          configuration using the "--plat" option.
+
+[non]secure = Refers to either the nonsecure (nsec) or secure (sec) path or
+              file.
+
+/                   Test root
+|
++-- ABOUT           This document detailing the test framework
+|
++-- ${ARCH}.mk      ${ARCH} specific make rules and definitions
+|
++-- configure       Build configure script
+|
++-- Makefile        Root build file
+|
++-- README          Document describing test usage
+|
++-- .gdbinit        Test specific GDB initialization script
+|
++-- .gitignore      Test specific GIT ignore
+|
++-- [tztest.img]    Generated QEMU BIOS image for a given build configuration.
+|
++-- [config.mk]     Generated configure build rules and definitions
+|
++-- common/         Common framework files. Contains functionality
+|   |               and definitions common to the test framework regardless
+|   |               of EL, secure state or execution state.
+|   |
+|   +-- ${ARCH}     Common functionality and definitions specific to ${ARCH}.
+|                   Contains the ${ARCH} specific implementation of common
+|                   functions and definitions used throughout the test
+|                   framework.
+|
++-- el*/            ELn specific framework files.  Contains common ELn
+|   |               test framework functionality and definitions
+|   |
+|   +-- Makefile    ELn root Makefile
+|   |
+|   +-- ${ARCH}/    ELn functionality and definitions specific to ${ARCH}.
+|   |               Contains the ${ARCH} specific implementation of
+|   |               common ELn functions and definitions.
+|   |
+|   +-- [non]secure/    [Non]secure state ELn test framework functionality and
+|       |               definitions.  Contains the sources used to create the
+|       |               [non]secure ELn test image.
+|       |
+|       +-- el*_[n]sec.lds.S  Nonsecure or secure ELn linker script
+|       |
+|       +-- Makefile          Primary nonsecure or secure ELn build file
+|       |
+|       +-- [el*_[n]sec.bin]  Nonsecure or secure ELn binary test image
+|       |
+|       +-- [el*_[n]sec.elf]  Nonsecure or secure ELn test ELF file
+|
++-- /libcflat           Standard C utility files
+|   |
+|   +-- Makefile        Primary libcflat build file
+|   |
+|   +-- [libcflat.a]    Generated static standard C library used by the test
+|   |                   framework.
+|   |
+|   +-- ${ARCH}/        Functionality and definitions specific to ${ARCH}.
+|                       Contains the ${ARCH} specific implementation of
+|                       common libcflat functions and definitions.
+|
++-- /platform       Machine and platform specific files.  Contains
+|   |               functionality and definitions specific to a target
+|   |               machine platform.
+|   |
+|   +-- ${PLAT}     Functionality and definitions specific to ${PLAT}.
+|                   Contains the ${PLAT} specific implementation of common
+|                   platform functions and definitions.
+|
++-- tztest/         Common test root directory.  Contains functionality and
+    |               definitions implementing test facilities and tests.
+    |               This functionality is built into the respective EL images
+    |               for executing or launching tests specific to the EL.
+    |
+    +-- el*         ELn specific test files.  Contains test functionality and
+        |           definitions specific to ELn.  This functionality is built
+        |           into the corresponding ELn framework image.
+        |
+        +-- [non]secure/    Nonsecure or secure ELn specific test files.
+                            Contains test functionality and definitions
+                            specific to nonsecure or secure ELn.  This
+                            functionality is built into the respective
+                            nonsecure or secure ELn framework image.
+
+Design
+============================
+
+Images
+----------------
+The test consists of a single bios binary, named "tztest.img", that can be
+supplied to QEMU through the "-bios" command line option.  The test image is
+composed of the following images:
+
+  * el3.bin       Binary image containing EL3 functionality and tests
+  * el1_sec.bin   Binary image containing secure EL1 functionality and tests
+  * el1_nsec.bin  Binary image containing nonsecure EL1 functionality and tests
+  * el0_sec.elf   ELF image containing secure EL0 functionality and tests
+  * el0_nsec.elf  ELF image containing nonsecure EL0 functionality and tests
+
+The El3 and EL1 images include bootloaders for loading and initializing the
+images. Execution of these images is initiated by transferring execution to
+their known starting flash location.
+
+The EL0 images are not self-loading and rely on their respective EL1
+counterpart to load the image.  By using ELF format, the EL1 loader has the
+necessary information for determining the location of each of the EL0 image
+data as well as other information such as architecture.
+
+Loading
+----------------
+All images are loaded into RAM and intialized prior to any tests being
+performed.  The load order is as follows:
+
+  EL3 --> EL1 (secure) --> EL0 (secure) --> EL1 (nonsecure) -> EL0 (nonsecure)
+
+  During loading, the transition between levels is performed through targeted
+  exception returns and SMC/SVC calls.  These are performed by using
+  predetermined target addresses as defined in common/${ARCH}/memory.h.
+
+Once all the images are loaded, test execution is initiated from the nonsecure
+EL0 main entry point.
+
+System Control
+----------------
+In order to allow common control and communication between each of the ELs, the
+EL3 start-up code allocates and shares a common system control structure. The
+physical address of this control structure is passed to each of the initiated
+EL1 images through register 4.  It is the responsbility of each EL1 to map this
+control strcture into its own address space.
+
+The contents of the system control structure can be found in common/syscntl.h.
+It includes the following:
+  * Shared inter-operation buffer descriptor
+  * Exception handler controls
+  * Test control and status block
+
+All common test framework controls shall reside in this structure.
+
+Communication
+----------------
+Transitions and communication between exception levels is performed using
+structured SMC/SVC calls  and exception return operations. Predefined
+inter-operation codes and descriptors are in common/interop.h and are common
+between SVC and SMC calls. The inter-operation descriptors contain the
+parameters for performing the desired operation.
+
+Communication between EL0 and EL1 use the SVC ARM instruction to pass an SVC
+opcode along with the SVC operation descriptor.  This descriptor is a union of
+the supported inter-operation descriptors. Descriptors originating in EL0 may be
+directly accessed by EL1 of the same security state because of the address
+space.
+
+Similarly, communication between EL1 and EL3 use the SMC ARM instruction to
+pass an SMC opcode along with the SMC operation descriptor.  Likewise, this
+descriptor is a union of the supported inter-operation descriptors. Given that
+EL3 is used for transitioning between security states, direct access to
+descriptors originating in EL1 or EL0 is disallowed and inaccessible by EL3.
+Instead, a dedicated inter-operation descriptor buffer is provided for copy-in
+and copy-out between the EL1s and EL3.
+
+The global name of this buffer is smc_interop_buf and details pertaining to it
+can be found in the system control structure.  The details include the buffer
+physical and virtual address so the communicating EL1s can map the buffer into
+their address space for access.
+
+Memory
+============================
+The MMU is enabled by default for EL3 and both EL1s.  Each MMU controls a
+distinct address space.  The EL1 and EL0 within a given security state share an
+address space where EL1's address space is made privileged where possible. The
+layout and memory map for each EL can be found in common/${ARCH}/memory.h.
+Currently, the memory management functionality is fairly primitive.
+
+Currently, the test framework is limited to small page usage.  No large page or
+section support has been added.  Their are 2 facilities for setting up the page
+tables: 1) common/${ARCH}/init_util.S contains page table facilities for use
+during EL initialization and 2) common/mmu_util.c contains page table
+facilities for runtime use.  The functionality consists of physical and virtual
+address allocation, mapping, and unmapping.  All allocations and mapping occur
+at a page granularity for simplicty and no deallocation or page reclaiming is
+provided.
+
+Tests
+============================
+All tests reside in the tztest directory. Tests are driven from nonsecure EL0
+and originate in tztest_start().  This function executes the array of test
+entries found in tztest[].
+
+Each test entry consists of a test function ID and function argument along with
+the target EL and secure state.  Execution is routed to the appropriate
+target for execution where the function ID is used to identify the test function
+to be executed.  Each level is responsible for determining whether it should
+execute the given test or forward it onto the proper owner.
+
+Test facilities are provided for performing verification:
+  - Exception control, status and checking
+    The system control descriptor contains a common block for controlling
+    exception reporting an handling as well as logging facilities for test
+    feedback and checking
+  - Register access macros
+    Macros are provided for accessing registers and data and varying ELs and
+    security states.  Currently, you have to know what EL you are calling from
+    in order to use the macros.
+  - EL traversal functionality
+    Builtin functions are provided for issuing SVC/SMC calls as well as
+    exception returns.
+  - Test message facilities
+    Test print message macros are provided to standardize the test output.
+  - Global test status block
+    The system control descriptor contains a common block for reporting test
+    statistics and data.
+
+Currently, the following tests are performed.  Refer to the actual tests for
+more detail.
+  - Interoperation verification
+  - Secure and nonsecure EL0 validation of SMC behavior
+  - Secure and nonsecure EL1 validation of SMC behavior
+  - AArch32 EL3 validation of SMC behavior
+  - Secure and nonsecure EL0 register access validation
+  - Secure and nonsecure EL1 register access validation
+  - AArch64 EL0 CPACR and WFx exception trap validation
+  - AArch32 EL1 CPSR bit masking verification
+  - AArch64 EL1 CPACR and WFx exception trap validation
+
+Adding new tests
+============================
+Adding tests to the framework can be pretty straight forward provided you don't
+need any custom functionality.  Here are the steps:
+
+    1) Determine what EL the test is for.  It is possible for a test to be run
+       from multiple ELs, but there are often subtle differences that make it
+       necessary to add separate test functions.  For instance, system register
+       access from EL0 requires an SVC call but not neccessarily from EL1.
+       Similarly, exceptions may be routed differently depending on the
+       execution EL.
+
+    2) If the test is for both secure and nonsecure state, decide whether it is
+       common or not.  More often this is the case, but again their are
+       exceptions that make it easier to have separate test functions.
+
+    3) Based on the above 1 & 2, add the test function to the appropriate
+       tztest file.  For example, a secure EL0 test "foo" would get added to
+       tztest/el0/secure/tztest_el0_sec.c.  Similarly, a test function common
+       to secure and nonsecure EL1, would be added to tztest/el1/tztest_el1.c.
+       In addition, if the test function is common, a prototype needs to be
+       added to the common header tztest/el1/tztest_el1.h.
+
+    4) Once the test has been added, it needs to be assigned a function ID and
+       slot in the associated test_func[] tables. For example, a test
+       function for secure and nonsecure EL0, would be added to both tables.
+       The tables reside in the corresponding tztest file.  The above example
+       tables would be in tztest/el0/[non]secure/tztest_el0_[n]sec.c files.
+
+       In some cases, an existing unused function ID slot can be used if the ID
+       name makes sense. In some cases, however, new IDs need to be added to
+       tztest/tztest_internal.h.
+
+    5) The last step in adding the test is adding the appropriate test entry to
+       be run.  This is done by modifying the tztest[] test case array in
+       tztest/tztest.c. The entry consists of the function ID, the EL,
+       security state, and a function argument. The test dispatcher does the
+       rest.
+
+It is common to need additional infrastructure for new system registers or
+exceptions. Adding such support is often trivial, but there will likely be
+cases where new and more complex changes will be needed.
+
+Test obstacles and pitfalls
+============================
+Although it is fairly straight forward to add a test and available macros are
+named accordingly, a certain amount ARM architecture knowledge is needed. It is
+easy to get hung up on certain issues because of subtlties in the architecture.
+
+Here are some items to consider:
+
+    - Changing system registers can have an adverse effect, so make sure you
+      are aware of the side-effects you may cause.  For instance, disabling
+      floating-point will cause an unexpected exception on printf.
+    - Access to system registers is different depending on the EL.  There are
+      macros for accessing system registers are the various levels:
+      * EL0 - SVC_[GET,SET]_REG() allows access to a register at a specified
+              EL.
+      * EL1 - READ_*/WRITE_*() macros are provided for accessing registers
+              normally available at EL1.  SMC_[GET,SET]_REG macros are provided
+              for accessing registers at EL3.
+    - Other than EL0 address pointers being shared with their corresponding
+      secure state EL1, addressed should can not be shared without proper
+      mapping.  Each EL is designated its own distinct address space, so any
+      sharing should be done using the necessary mapping. SVC and SMC calls are
+      provided for this.
+    - The test is set-up to work with the current memory mappings and
+      constraints. Using an abundance of memory through dynamic allocation or
+      through static definitions can upset the existing memory layout sometimes
+      requiring adjustment.
+
+Minimal test requirements
+============================
+Below is a list of the minimal test infrastructure needed for compatability:
+
+    1) Test header indicating the test family being run.  This is done using
+       the TEST_HEAD macro.  The macro will format the heading appropriately.
+
+    2) Test message identifying the distinct test case being run.  This should
+       be unique as it identifies the specific test and its status. This is
+       done through the TEST_MSG macro.  This macro expects that the next print
+       will be the status associated with the corresponding test.  The macro
+       will format and add additional identifying details to the test message.
+
+    3) Test status message indicating whether the test failed or not.  This
+       message is the completion of #2 which indicates if the test passed or
+       failed.  This is done by using either the TEST_MSG_*() status macro or
+       one of the TEST_* macros that call the status macro internally.
+
+    4) Update of test statistics.  This usually done internally by the
+       supplied TEST macros, but can also be done using the INC_*_COUNT macros.
+       Minimally the test count must be incremented (INC_TEST_COUNT), but in
+       the case of failures the failure count must also be incremented
+       (INC_FAIL_COUNT). These counts are used in the final test statistics so
+       it is important that the are updated for accuracy.
+
+    5) Obviously a test condition is also needed for completeness.  The test
+       case should perform an operation and test whether the operation
+       succeeded or failed as expected.
+
+Sample test case
+============================
+Test: Check behavior of SMC call from EL0
+
+Expected behavior: SMC from both secure and nonsecure EL0 should result in an
+                   undefined exception at EL1.
+
+Required infrastructure: The test framework includes functionality for logging
+                and handling undefined exceptions.  Handling includes capturing
+                and reporting the exception state and skipping the offending
+                instructure on return.
+
+File changes: Since the test condition and expectations are the same for both
+              secure and nonsecure EL0, the test case named el0_check_smc() can
+              be added to the common EL0 test file (tztest_el0.c).  As it is
+              common for secure and nonsecure, a prototype is also added to the
+              common EL0 header (tztest_el0.h).  We expect the test function to
+              be executed from both secure states it is added as test function
+              ID TZTEST_SMC in both the secure and nonsecure test function
+              arrays (test_func[]). Lastly, test case entries are added for
+              both secure and nonsecure EL0 in the test case array (tztest[]).
+
+Test function: The test function (el0_check_smc) is rather simple in this case,
+               execute a noninvasive SMC instruction from EL0. The test
+               function begins with the test header "smc behavior" and test
+               case message "SMC call".
+
+               Next the condition is tested and utilizes the provided exception
+               test macro for verifying that the SMC call does infact generate
+               the expected exception.  In this case, the TEST_EL1_EXCEPTION()
+               macro is called and includes an inline smc assembly call
+               "smc #0" and the expected exception code EC_UNKNOWN).  Within
+               the macro, the SMC instruction will be executed and checks are
+               performed to see if it matches the expected EL and exception
+               code.  The test statistics are updated corresponding to the
+               result and the appropriate test status message is printed.
+
+Test result: The following would be the result if the tests were successful:
+
+                Validating non-secure EL0 smc behavior:
+                        EL0 (non-secure): SMC call... PASSED
+
+                Validating secure EL0 smc behavior:
+                        EL0 (secure): SMC call... PASSED
+
+                Validation complete.  Passed 2 of 2 tests.
+
+             The last message is cumulative and would include statistics of all
+             the tests executed, but demonstrative purposes it is only the two.
+
+Other test considerations
+============================
+- Tests are only added if the infrastructure does not already stress the
+  functional area.  For example, successful SMC operations from EL1 are not
+  validated as they are required for test operation.
+- In many cases, both a positive and negative test should be performed. For
+  example, access control to a given register should be tested with and without
+  the control for completeness.
+
+To-Dos
+============================
+The amount of features that can be added to the test are endless, but the
+following are a few items that should eventually be addressed.
+
+- Add test flash offset variables that the makefile and memory.h can share.
+  This eliminates the possibility of changing it in one place but not the
+  other.
+- Add nested EL3 exception support.  Monitor tests are executed from the SMC
+  handler, so any tests that generate exceptions will require that the
+  el3_smc_vect be updated to save minimal state.
+- Clean-up and better structure the memory map.  Memory usage could be improved
+  and better isolated among the test images.
+- Check and fix stack frames to make sure they are calling convention
+  compliant.
+- Break out platform UART initialization into its own ASM function.
+- Clean-up ${ARCH} specific ifdefs in the test code.
+- Add test registration facility to simplify adding tests.  This would consist
+  of each test environment registering its known tests rather than having to
+  add them to a common static table.  This would minimize the number of files
+  changed to add a single test.
+- Create a common interface for accessing system registers and data.
+- Get vexpress-a9 working.
+- Add use of TTBR1
+- Wire exit() to test framework shutdown.
