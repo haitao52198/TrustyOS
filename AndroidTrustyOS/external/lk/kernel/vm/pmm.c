@@ -82,7 +82,10 @@ status_t pmm_add_arena(pmm_arena_t *arena)
 
     DEBUG_ASSERT(IS_PAGE_ALIGNED(arena->base));
     DEBUG_ASSERT(IS_PAGE_ALIGNED(arena->size));
-    DEBUG_ASSERT(arena->size > 0);
+
+    //DEBUG_ASSERT(arena->size > 0);
+    if (arena->size <= 0)
+        return NO_ERROR;
 
     /* walk the arena list and add arena based on priority order */
     pmm_arena_t *a;
