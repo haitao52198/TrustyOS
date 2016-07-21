@@ -1,0 +1,40 @@
+This version of QEMU is based on experimental version of qemu
+with TrustZone support authored by with Johannes Winter
+
+    https://github.com/jowinter/qemu-trustzone
+
+with the following patches on top of it:
+
+68ec0ef target-arm: fixup LPAE support
+ba8230c target-arm: Implement secure generic timer
+cc67b05 arm_gic: Fix complete-irq for PPIs that are still raised
+f750a5e arm_gic: Implement GICC_AIAR, GICC_AEOIR and GICC_AHPPIR
+6df3804 arm_gic: Don't allow writes to configuration registers for internal interrupts.
+24c1493 target-arm: Exit cpu loop on wfe
+060f9cd cpu-exec: When multiple cpus are active, don't execute a single cpu for more than 20ms.
+a30f9b6 fixup: target-arm: add secure/normal world banks for CP15 TLS registers
+5559601 arm_gic: Change cpu_enabled from bool to uint8_t
+1b873a2 target-arm: Fix EXCP_FIQ to check SCR_FIQ instead of SCR_IRQ
+4596de5 arm_gic: Update pending state then changing target register.
+9e93476 arm_gic: Use 1-N model for SPIs
+5f2e73e arm_gic: Fix gic_complete_irq for 1-N model interrupts
+95530ed [arm][gic] Fix non-secure interrupt status in secure mode.
+f15eff6 arm_gic: Fix interrupt group selection for non-local interrupts
+9528f1c arm_gic: Fix interrupt enable/disable for non-local interrupts
+8d8eb71 arm_gic: Fix secure check when updating interrupts
+e7fbc9f Remove unused parameters in gic_update_simple
+60422bf Add GICState variable when debugging
+126ef77 Revert "intc/arm_gic: Build arm_gic only once"
+57719f2 [PATCH 25/32] WIP: arm-trustzone: Working ARM GIC security extension  prototype ...
+d75e477 [PATCH 24/32] WIP: arm-trustzone: Towards security extensions for  the ARM GIC
+4be0acd target-arm: Allow switch to monitor mode when in secure mode.
+9110224 target-arm: Add missing ARM_CP_BANKED flags. (sqaush with target-arm: Fix DACR read/write to update correct bank.
+954169f hw/arm_boot.c: Load tz image at start of reserved region instead of link addr.
+1f01ff4 hw/arm_boot.c: Add -tzmem option.
+8dc8428 Add TLK boot arguments
+287b63e Add -tz option to specify TrustZone image
+
+
+
+
+
