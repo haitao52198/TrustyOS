@@ -14,7 +14,9 @@ MODULE_SRCS += \
 	$(LOCAL_DIR)/platform.c \
 	$(LOCAL_DIR)/secondary_boot.S
 
-MEMBASE := 0x80000000
+#pei
+#MEMBASE := 0x80000000
+MEMBASE := 0x10000
 MEMSIZE := 0x10000000	# 256MB
 
 MODULE_DEPS += \

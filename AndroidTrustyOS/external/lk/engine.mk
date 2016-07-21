@@ -11,6 +11,9 @@ ifndef LKROOT
 $(error please define LKROOT to the root of the lk build system)
 endif
 
+#pei
+DEFAULT_PROJECT = vexpress-a15
+
 -include local.mk
 include make/macros.mk
 
