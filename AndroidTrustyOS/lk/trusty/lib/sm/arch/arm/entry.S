@@ -102,8 +102,10 @@ FUNCTION(platform_reset)
 	/* patching dynamic entry: r5 - points to entry to patch */
 	/* r0 is memsize passed in by the bootloader */
 
+#if MEMSIZE_FROM_BOOTLOADER
 	/* update size field of mmu_initial_mappings struct */
 	str	r0, [r5, #__MMU_INITIAL_MAPPING_SIZE_OFFSET]
+#endif
 
 	/* calculate phys mem base */
 	ldr	r4, =_start	/* r4 = _start vaddr */

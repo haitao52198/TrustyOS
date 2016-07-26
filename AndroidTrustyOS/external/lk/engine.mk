@@ -13,6 +13,7 @@ endif
 
 #pei
 DEFAULT_PROJECT = vexpress-a15
+MEMSIZE_FROM_BOOTLOADER = 0
 
 -include local.mk
 include make/macros.mk
