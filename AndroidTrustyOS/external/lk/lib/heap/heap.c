@@ -431,6 +431,23 @@ void heap_free(void *ptr)
 
 	LTRACEF("ptr %p\n", ptr);
 
+	mutex_acquire(&theheap.lock);
+
+	struct 	free_heap_chunk *chunk;
+	bool	found = false;
+	list_for_every_entry(&theheap.free_list, chunk, struct free_heap_chunk, node) {
+		if (chunk == ptr) {
+			found = true;
+			break;
+		}
+	}
+	mutex_release(&theheap.lock);
+
+	if (!found) {
+		dprintf(INFO, "\t\twrong heap pointer %p\n", ptr);
+		return;
+	}
+
 	// check for the old allocation structure
 	struct alloc_struct_begin *as = (struct alloc_struct_begin *)ptr;
 	as--;
