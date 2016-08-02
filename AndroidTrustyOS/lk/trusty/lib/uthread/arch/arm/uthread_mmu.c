@@ -38,7 +38,7 @@ static void arm_uthread_mmu_init(uint level)
 {
 	uint32_t cur_ttbr0;
 
-	ASSERT(MEMBASE > MAX_USR_VA);
+//	ASSERT(MEMBASE > MAX_USR_VA);
 
 	cur_ttbr0 = arm_read_ttbr0();
 
