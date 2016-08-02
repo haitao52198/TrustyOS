@@ -70,6 +70,11 @@ static void call_constructors(void)
 	}
 }
 
+#if TRUSTYOS_BOOT_INTO_CONSOLE
+int console_init(void);
+void console_start(void);
+#endif
+
 /* called from arch code */
 void lk_main(ulong arg0, ulong arg1, ulong arg2, ulong arg3)
 {
@@ -124,8 +129,15 @@ void lk_main(ulong arg0, ulong arg1, ulong arg2, ulong arg3)
 	thread_detach(t);
 	thread_resume(t);
 
+#if TRUSTYOS_BOOT_INTO_CONSOLE
+	console_init();
+	console_start();
+#endif
+
 	// become the idle thread and enable interrupts to start the scheduler
 	thread_become_idle();
+
+
 }
 
 static int bootstrap2(void *arg)

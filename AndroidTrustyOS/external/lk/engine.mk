@@ -13,7 +13,6 @@ endif
 
 #pei
 DEFAULT_PROJECT = vexpress-a15
-MEMSIZE_FROM_BOOTLOADER = 0
 
 -include local.mk
 include make/macros.mk
@@ -159,6 +158,8 @@ GLOBAL_DEFINES += \
 	PLATFORM=\"$(PLATFORM)\" \
 	ARCH_$(ARCH)=1 \
 	ARCH=\"$(ARCH)\" \
+	MEMSIZE_FROM_BOOTLOADER=0 \
+	TRUSTYOS_BOOT_INTO_CONSOLE=1 \
 	$(addsuffix =1,$(addprefix WITH_,$(ALLMODULES)))
 
 # debug build?

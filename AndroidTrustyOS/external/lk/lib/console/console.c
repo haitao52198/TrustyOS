@@ -45,7 +45,7 @@
 
 #define HISTORY_LEN 16
 
-#define LOCAL_TRACE 0
+#define LOCAL_TRACE 1
 
 /* debug buffer */
 static char *debug_buffer;
@@ -571,7 +571,7 @@ static status_t command_loop(int (*get_line)(const char **, void *), void *get_l
 		// read a new line if it hadn't been split previously and passed back from tokenize_command
 		if (continuebuffer == NULL) {
 			if (showprompt)
-				fputs("] ", stdout);
+				fputs("(TrustyOS)] ", stdout);
 
 			int len = get_line(&buffer, get_line_cookie);
 			if (len < 0)
