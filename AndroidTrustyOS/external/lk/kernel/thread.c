@@ -963,7 +963,7 @@ void thread_secondary_cpu_init_early(void)
 	char name[16];
 	snprintf(name, sizeof(name), "idle %d", cpu);
 	init_thread_struct(t, name);
-	t->pinned_cpu = cpu;
+	//t->pinned_cpu = cpu;
 
 	/* half construct this thread, since we're already running */
 	t->priority = HIGHEST_PRIORITY;
