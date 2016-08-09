@@ -1,0 +1,9 @@
+#==========================================================================
+# Copyright (c) 2000-2008,  Elastos, Inc.  All Rights Reserved.
+#==========================================================================
+
+EXPORT_HEADERS = elapi.h
+EXPORT_HEADERS += elasysapi.h
+EXPORT_HEADERS += elastos.h
+EXPORT_HEADERS += spinlock.h
+EXPORT_HEADERS += callback.h

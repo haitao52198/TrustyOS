@@ -1,0 +1,11 @@
+#==========================================================================
+# Copyright (c) 2000-2008,  Elastos, Inc.  All Rights Reserved.
+#==========================================================================
+
+EXPORT_HEADERS = elans.h
+EXPORT_HEADERS += elatypes.h
+EXPORT_HEADERS += elaatomics.h
+EXPORT_HEADERS += elaerror.h
+EXPORT_HEADERS += eladef.h
+EXPORT_HEADERS += clsinfo.h
+EXPORT_HEADERS += asm.h
