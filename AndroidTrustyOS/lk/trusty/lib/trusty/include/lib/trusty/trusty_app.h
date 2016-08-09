@@ -48,6 +48,8 @@ typedef struct
 
 typedef struct trusty_app
 {
+	char 	app_name[256];
+
 	vaddr_t end_bss;
 
 	vaddr_t start_brk;

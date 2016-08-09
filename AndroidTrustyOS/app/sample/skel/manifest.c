@@ -24,6 +24,8 @@ trusty_app_manifest_t TRUSTY_APP_MANIFEST_ATTRS trusty_app_manifest =
 	{ 0xeca48f94, 0x00aa, 0x560e,
 	  { 0x8f, 0x8c, 0xd9, 0x4b, 0x50, 0xd4, 0x84, 0xf3 } },
 
+	 "sample/skel",
+
 	/* optional configuration options here */
 	{
 		/* four pages for heap */

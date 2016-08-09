@@ -34,6 +34,7 @@
  */
 typedef struct trusty_app_manifest {
 	uuid_t uuid;
+    char   app_name[256];
 	uint32_t config_options[];
 } trusty_app_manifest_t;
 

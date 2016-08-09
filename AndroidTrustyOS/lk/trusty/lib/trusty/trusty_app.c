@@ -22,7 +22,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-//#define DEBUG_LOAD_TRUSTY_APP
+#define DEBUG_LOAD_TRUSTY_APP	1
 
 #include <arch.h>
 #include <assert.h>
@@ -59,6 +59,7 @@ enum {
 
 typedef struct trusty_app_manifest {
 	uuid_t		uuid;
+	char   		app_name[256];
 	uint32_t	config_options[];
 } trusty_app_manifest_t;
 
@@ -160,8 +161,12 @@ static void load_app_config_options(intptr_t trusty_app_image_addr,
 
 	manifest_data += sizeof(trusty_app->props.uuid);
 
+	memcpy(trusty_app->app_name, manifest_data, 256);
+
+	manifest_data += 256;
+
 	config_blob = (u_int *)manifest_data;
-	config_blob_size = (shdr->sh_size - sizeof(uuid_t));
+	config_blob_size = (shdr->sh_size - sizeof(uuid_t) - 256);
 
 	trusty_app->props.config_entry_cnt = config_blob_size / sizeof (u_int);
 
@@ -573,7 +578,8 @@ void trusty_app_init(void)
 		uthread_t *uthread;
 		int ret;
 
-		snprintf(name, sizeof(name), "trusty_app_%d_%08x-%04x-%04x",
+		snprintf(name, sizeof(name), "%s, trusty_app_%d_%08x-%04x-%04x",
+			 trusty_app->app_name,
 			 i,
 			 trusty_app->props.uuid.time_low,
 			 trusty_app->props.uuid.time_mid,
