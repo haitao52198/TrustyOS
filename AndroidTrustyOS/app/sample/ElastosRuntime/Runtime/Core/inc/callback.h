@@ -9,8 +9,8 @@
 ELAPI_(void) _Impl_CallbackSink_FreeCallbackEvent(
             _ELASTOS PVoid callbackEvent);
 
-#include <semaphore.h>
-#include <time.h>
+#include <kernel/semaphore.h>
+//#include <time.h>
 #include <elaatomics.h>
 
 typedef _ELASTOS Int32 CallbackEventId;
@@ -52,7 +52,7 @@ public:
         , mWhen(0)
         , mRef(0)
     {
-        sem_init(&mSyncEvent, 0, 0);
+        sem_init(&mSyncEvent, 0);
     }
 
     CarCallbackEvent(
@@ -82,12 +82,12 @@ public:
         , mWhen(0)
         , mRef(0)
     {
-        sem_init(&mSyncEvent, 0, 0);
+        sem_init(&mSyncEvent, 0);
     }
 
     virtual ~CarCallbackEvent()
     {
-        sem_post(&mSyncEvent);
+        sem_post(&mSyncEvent, true);
         sem_destroy(&mSyncEvent);
     }
 
@@ -155,7 +155,7 @@ public:
     _ELASTOS PVoid                  mHandlerFunc;
     _ELASTOS Int32                  mTypeOfFunc;
     _ELASTOS ECode                  mRet;
-    sem_t                           mSyncEvent;
+    semaphore_t                     mSyncEvent;
     _ELASTOS Int16                  mStatus;
     _ELASTOS Int16                  mCompleted;
     _ELASTOS AutoPtr<IParcel>       mParameters;
@@ -183,7 +183,7 @@ ELAPI_(PCallbackEvent) _Impl_CallbackSink_AllocCallbackEvent(
 
 ELAPI _Impl_CallbackSink_GetThreadEvent(
     /* [in] */ PInterface callbackContext,
-    /* [out] */ sem_t* event);
+    /* [out] */ semaphore_t* event);
 
 ELAPI _Impl_CallbackSink_PostCallbackEvent(
     /* [in] */ PInterface callbackContext,

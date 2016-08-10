@@ -1,0 +1,7 @@
+#==========================================================================
+# Copyright (c) 2000-2008,  Elastos, Inc.  All Rights Reserved.
+#==========================================================================
+
+EXPORT_HEADERS = clstype.h
+EXPORT_HEADERS += clsdef.h
+EXPORT_HEADERS += clsbase.h

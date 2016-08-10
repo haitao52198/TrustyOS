@@ -23,43 +23,49 @@ MODULE_INCLUDES += \
 	$(LOCAL_DIR)/../Runtime/Library/inc/eltypes \
 	$(LOCAL_DIR)/../Runtime/Library/inc/car \
 	$(LOCAL_DIR)/../Runtime/Library/inc/elasys \
-
+	$(LOCAL_DIR)/../Runtime/Library/inc/clsmodule \
+	$(LOCAL_DIR)/../../../../lib/lib/libstdc++-trusty/include \
+	$(LOCAL_DIR)/../rdk/inc \
+	$(LOCAL_DIR)/../rdk/PortingLayer \
 
 #MODULE_CPPFLAGS := -std=c++11
 
 MODULE_SRCS += $(LOCAL_DIR)/CClsModule.cpp
-MODULE_SRCS += CObjInfoList.cpp
-MODULE_SRCS += CEntryList.cpp
-MODULE_SRCS += refutil.cpp
-MODULE_SRCS += reflection.cpp
-MODULE_SRCS += CArgumentList.cpp
-MODULE_SRCS += CCallbackArgumentList.cpp
-MODULE_SRCS += CCallbackMethodInfo.cpp
-MODULE_SRCS += CCarArrayInfo.cpp
-MODULE_SRCS += CVariableOfCarArray.cpp
-MODULE_SRCS += CClassInfo.cpp
-MODULE_SRCS += CConstantInfo.cpp
-MODULE_SRCS += CConstructorInfo.cpp
-MODULE_SRCS += CCppVectorInfo.cpp
-MODULE_SRCS += CDelegateProxy.cpp
-MODULE_SRCS += CEnumInfo.cpp
-MODULE_SRCS += CEnumItemInfo.cpp
-MODULE_SRCS += CFieldInfo.cpp
-MODULE_SRCS += CInterfaceInfo.cpp
-MODULE_SRCS += CIntrinsicInfo.cpp
-MODULE_SRCS += CLocalPtrInfo.cpp
-MODULE_SRCS += CLocalTypeInfo.cpp
-MODULE_SRCS += CMethodInfo.cpp
-MODULE_SRCS += CModuleInfo.cpp
-MODULE_SRCS += CParamInfo.cpp
-MODULE_SRCS += CStructInfo.cpp
-MODULE_SRCS += CVariableOfStruct.cpp
-MODULE_SRCS += CVariableOfCppVector.cpp
-MODULE_SRCS += CTypeAliasInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CObjInfoList.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CEntryList.cpp
+MODULE_SRCS += $(LOCAL_DIR)/refutil.cpp
+MODULE_SRCS += $(LOCAL_DIR)/reflection.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CArgumentList.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CCallbackArgumentList.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CCallbackMethodInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CCarArrayInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CVariableOfCarArray.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CClassInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CConstantInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CConstructorInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CCppVectorInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CDelegateProxy.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CEnumInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CEnumItemInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CFieldInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CInterfaceInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CIntrinsicInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CLocalPtrInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CLocalTypeInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CMethodInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CModuleInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CParamInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CStructInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CVariableOfStruct.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CVariableOfCppVector.cpp
+MODULE_SRCS += $(LOCAL_DIR)/CTypeAliasInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/manifest.c
+MODULE_SRCS += $(LOCAL_DIR)/ref_app.c
 
 
 MODULE_DEPS += \
 	app/trusty \
 	lib/libc-trusty \
+	lib/libstdc++-trusty \
 
 include make/module.mk

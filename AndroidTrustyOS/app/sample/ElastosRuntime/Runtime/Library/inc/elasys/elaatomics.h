@@ -6,14 +6,19 @@
 extern "C" {
 
 ECO_PUBLIC int atomic_cmpxchg(int old, int _new, volatile int *ptr);
-ECO_PUBLIC int atomic_swap(int _new, volatile int *ptr);
 
+//pei
+/* $/external/lk/include/arch/ops.h
+ECO_PUBLIC int atomic_swap(int _new, volatile int *ptr);
+*/
 ECO_PUBLIC int atomic_inc(volatile int *ptr);
 ECO_PUBLIC int atomic_dec(volatile int *ptr);
+
+/*
 ECO_PUBLIC int atomic_add(int value, volatile int* ptr);
 ECO_PUBLIC int atomic_and(int value, volatile int* ptr);
 ECO_PUBLIC int atomic_or(int value, volatile int *ptr);
-
+*/
 }
 
 #endif /* __ELAATOMICS_H__ */

@@ -12,6 +12,10 @@
 #include <stdint.h>
 #endif
 
+#ifdef __GNUC__
+#define _GNUC __GNUC__
+#endif
+
 extern "C" {
 
 #if defined(_MSC_VER) || defined(_EVC)
@@ -149,10 +153,12 @@ typedef const InterfaceID&  RInterfaceID;
 
 _ELASTOS_NAMESPACE_END
 
-#if defined(_linux) || defined(_mips) && defined(_GNUC)
+#if defined(_linux) || (defined(_mips) && defined(_GNUC)) || !defined(__cdecl) || !defined(__stdcall)
 #define __cdecl
 #define __stdcall
 #endif
+
+
 
 #define CDECL                   __cdecl
 #define STDCALL                 __stdcall

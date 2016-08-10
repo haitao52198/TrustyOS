@@ -7,6 +7,7 @@
 
 #include <elquintettype.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 extern "C" {
     ECO_PUBLIC _ELASTOS PCarQuintet __cdecl _CarQuintet_Init(_ELASTOS PCarQuintet pCq,

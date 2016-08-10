@@ -3,6 +3,7 @@
 //==========================================================================
 
 #include "CInterfaceInfo.h"
+#include "alloca.h"
 
 CInterfaceInfo::CInterfaceInfo(
     /* [in] */ CClsModule* clsModule,

@@ -19,7 +19,7 @@
 #include "CLocalTypeInfo.h"
 #include "CLocalPtrInfo.h"
 #include "CCallbackMethodInfo.h"
-#include <pthread.h>
+//#include <pthread.h>
 #include <dlfcn.h>
 
 typedef
@@ -50,6 +50,7 @@ E_FAIL_EXIT:
 
 CObjInfoList::CObjInfoList()
 {
+#ifdef NOT_IN_TRUSTYOS
     pthread_mutexattr_t recursiveAttr;
 
     pthread_mutexattr_init(&recursiveAttr);
@@ -95,6 +96,7 @@ CObjInfoList::CObjInfoList()
     else mIsLockClsModule = TRUE;
 
     pthread_mutexattr_destroy(&recursiveAttr);
+#endif
 
     memset(mDataTypeInfos, 0, sizeof(IInterface *) * MAX_ITEM_COUNT);
     memset(mLocalTypeInfos, 0, sizeof(IInterface *) * MAX_ITEM_COUNT);
@@ -130,6 +132,7 @@ CObjInfoList::~CObjInfoList()
     mLocalPtrInfos.Clear();
     mClsModule.Clear();
 
+#ifdef NOT_IN_TRUSTYOS
     pthread_mutex_destroy(&mLockTypeAlias);
     pthread_mutex_destroy(&mLockEnum);
     pthread_mutex_destroy(&mLockClass);
@@ -140,6 +143,7 @@ CObjInfoList::~CObjInfoList()
     pthread_mutex_destroy(&mLockDataType);
     pthread_mutex_destroy(&mLockLocal);
     pthread_mutex_destroy(&mLockClsModule);
+#endif
 }
 
 UInt32 CObjInfoList::AddRef()
@@ -155,6 +159,7 @@ UInt32 CObjInfoList::Release()
 ECode CObjInfoList::LockHashTable(
     /* [in] */ EntryType type)
 {
+#ifdef NOT_IN_TRUSTYOS
     switch (type) {
         case EntryType_Module:
             if (mIsLockModule)
@@ -206,6 +211,7 @@ ECode CObjInfoList::LockHashTable(
         default:
             break;
     }
+#endif
 
     return NOERROR;
 }
@@ -213,6 +219,7 @@ ECode CObjInfoList::LockHashTable(
 ECode CObjInfoList::UnlockHashTable(
     /* [in] */ EntryType type)
 {
+#ifdef NOT_IN_TRUSTYOS
     switch (type) {
         case EntryType_Module:
             if (mIsLockModule)
@@ -264,7 +271,7 @@ ECode CObjInfoList::UnlockHashTable(
         default:
             return E_INVALID_ARGUMENT;
     }
-
+#endif
     return NOERROR;
 }
 

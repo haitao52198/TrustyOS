@@ -10,9 +10,9 @@
 #include <elans.h>
 #include <elatypes.h>
 #include <elaerror.h>
-#ifndef _devtools
-#include <pthread.h>
-#endif
+//#ifndef _devtools
+//#include <pthread.h>
+//#endif
 #include <assert.h>
 
 #define DECL_ASMLINKAGE         EXTERN_C
@@ -80,7 +80,9 @@
 
 #ifndef _devtools
 
-EXTERN_C pthread_key_t *getTlSystemSlotBase();
+//pei
+//EXTERN_C pthread_key_t *getTlSystemSlotBase();
+EXTERN_C void *getTlSystemSlotBase();
 
 #define TL_SYSTEM_SLOT_BASE             (getTlSystemSlotBase())
 #define TL_CALLBACK_SLOT                (*(TL_SYSTEM_SLOT_BASE + 3))
@@ -177,9 +179,13 @@ EXTERN_C pthread_key_t *getTlSystemSlotBase();
 #define __32BIT(n)              (1ul << (n))
 #define __64BIT(n)              (1ull << (n))
 
+#if 0
+//defined in external/lk/include/stdlib.h
+
 #ifndef MAX
 #define MAX(a, b)               (((a) > (b))? (a) : (b))
 #endif
+
 #ifndef MIN
 #define MIN(a, b)               (((a) < (b))? (a) : (b))
 #endif
@@ -189,6 +195,7 @@ EXTERN_C pthread_key_t *getTlSystemSlotBase();
 
 #define ROUNDDOWN(n, size)      (((n) / (size)) * (size))
 #define ROUNDDOWN2(n, size)     ((n) & ~((size) - 1))
+#endif
 
 #define IS_ALIGNMENT(n, size)   (0 == ((size_t)(n) % (size)))
 #define IS_ALIGNMENT2(n, size)  (0 == ((size_t)(n) & ((size) - 1)))
