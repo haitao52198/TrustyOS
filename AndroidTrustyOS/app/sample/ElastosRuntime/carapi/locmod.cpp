@@ -3,13 +3,15 @@
 //==========================================================================
 #define __NO_LINKNODE_CONSTRUCTOR
 #include <locmod.h>
-#include <pthread.h>
+//#include <pthread.h>
 #include <dlfcn.h>
 #include <stdio.h>
-#include <utils/Log.h>
+#include <kernel/mutex.h>
 
 #define ENABLE_DUMP_CLSID    0    // debug info switch
 #if ENABLE_DUMP_CLSID
+#include <utils/Log.h>
+
 #define DUMP_CLSID(CLSID, info) \
     do { \
         ALOGD("> %s\n", info); \
@@ -29,7 +31,7 @@
 EXTERN_C CARAPI DllGetClassObject(REMuid, REIID, PInterface*);
 
 _ELASTOS DLinkNode g_LocModList(&g_LocModList, &g_LocModList);
-pthread_mutex_t g_LocModListLock;
+mutex_t g_LocModListLock;
 
 CAR_INLINE _ELASTOS Boolean IsRuntimeUunm(const char* uunm)
 {
@@ -48,19 +50,19 @@ ECode AcquireClassObjectFromLocalModule(
 
     ECode ec = NOERROR;
 
-    pthread_mutex_lock(&g_LocModListLock);
+    mutex_acquire(&g_LocModListLock);
     LocalModule* localModule = (LocalModule *)(g_LocModList.mNext);
     while ((DLinkNode *)localModule != &g_LocModList) {
         if (IsEqualUunm(localModule->mUunm.string(), uunm)) {
             ec = (*localModule->mDllGetClassObjectFunc)(rclsid.mClsid,
                     EIID_IClassObject, object);
             localModule->mAskCount = 0;
-            pthread_mutex_unlock(&g_LocModListLock);
+            mutex_release(&g_LocModListLock);
             return ec;
         }
         localModule = (LocalModule *)localModule->mNext;
     }
-    pthread_mutex_unlock(&g_LocModListLock);
+    mutex_release(&g_LocModListLock);
 
     if (IsRuntimeUunm(uunm)) {
         return DllGetClassObject(rclsid.mClsid, EIID_IClassObject, object);
@@ -75,8 +77,8 @@ ECode AcquireClassObjectFromLocalModule(
 #endif
     if (NULL == module) {
         ec = E_FILE_NOT_FOUND;
-        ALOGE("<%s, %d> dlopen '%s' failed.\n", __FILE__, __LINE__, uunm);
-        ALOGE("error: %s\n", dlerror());
+//        ALOGE("<%s, %d> dlopen '%s' failed.\n", __FILE__, __LINE__, uunm);
+        //ALOGE("error: %s\n", dlerror());
         goto ErrorExit;
     }
 
@@ -102,9 +104,9 @@ ECode AcquireClassObjectFromLocalModule(
 
     if (FAILED(ec)) goto ErrorExit;
 
-    pthread_mutex_lock(&g_LocModListLock);
+    mutex_acquire(&g_LocModListLock);
     g_LocModList.InsertFirst(localModule);
-    pthread_mutex_unlock(&g_LocModListLock);
+    mutex_release(&g_LocModListLock);
     return ec;
 
 ErrorExit:
@@ -121,20 +123,20 @@ ELAPI_(_ELASTOS Boolean) _CModule_CanUnloadAllModules()
 {
     LocalModule* localModule;
 
-    pthread_mutex_lock(&g_LocModListLock);
+    mutex_acquire(&g_LocModListLock);
     localModule = (LocalModule *)(g_LocModList.mNext);
 
     while ((DLinkNode *)localModule != &g_LocModList) {
         if (NULL != localModule->mDllCanUnloadNowFunc) {
             if (NOERROR != (*localModule->mDllCanUnloadNowFunc)()) {
-                pthread_mutex_unlock(&g_LocModListLock);
+                mutex_release(&g_LocModListLock);
                 return FALSE;
             }
         }
         localModule = (LocalModule *)localModule->mNext;
     }
 
-    pthread_mutex_unlock(&g_LocModListLock);
+    mutex_release(&g_LocModListLock);
     return TRUE;
 }
 
@@ -145,7 +147,7 @@ ELAPI _CProcess_FreeUnusedModule(
 
     if (moduleName.IsNullOrEmpty()) return E_INVALID_ARGUMENT;
 
-    pthread_mutex_lock(&g_LocModListLock);
+    mutex_acquire(&g_LocModListLock);
     LocalModule* localModule = (LocalModule *)(g_LocModList.mNext);
 
     while (localModule != (LocalModule *)&g_LocModList) {
@@ -172,11 +174,11 @@ ELAPI _CProcess_FreeUnusedModule(
         else {
             ec = E_COMPONENT_CANNOT_UNLOAD_NOW;
         }
-        pthread_mutex_unlock(&g_LocModListLock);
+        mutex_release(&g_LocModListLock);
         return ec;
     }
 
-    pthread_mutex_unlock(&g_LocModListLock);
+    mutex_release(&g_LocModListLock);
 
     return E_COMPONENT_NOT_LOADED;
 }
@@ -184,7 +186,7 @@ ELAPI _CProcess_FreeUnusedModule(
 ELAPI_(void) _CProcess_FreeUnusedModules(
     /* [in] */ Boolean immediate)
 {
-    pthread_mutex_lock(&g_LocModListLock);
+    mutex_acquire(&g_LocModListLock);
     LocalModule* localModule = (LocalModule *)(g_LocModList.mNext);
 
     while (localModule != (LocalModule *)&g_LocModList) {
@@ -211,12 +213,12 @@ ELAPI_(void) _CProcess_FreeUnusedModules(
         localModule = next;
     }
 
-    pthread_mutex_unlock(&g_LocModListLock);
+    mutex_release(&g_LocModListLock);
 }
 
 void FreeCurProcComponents()
 {
-    pthread_mutex_lock(&g_LocModListLock);
+    mutex_acquire(&g_LocModListLock);
     LocalModule* curModule = (LocalModule *)(g_LocModList.mNext);
 
     while (curModule != (LocalModule *)&g_LocModList) {
@@ -240,5 +242,5 @@ void FreeCurProcComponents()
         }
     }
 
-    pthread_mutex_unlock(&g_LocModListLock);
+    mutex_release(&g_LocModListLock);
 }

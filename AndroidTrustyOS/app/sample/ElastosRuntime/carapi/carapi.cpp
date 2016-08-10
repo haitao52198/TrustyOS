@@ -1,12 +1,11 @@
 //==========================================================================
 // Copyright (c) 2000-2008,  Elastos, Inc.  All Rights Reserved.
 //==========================================================================
-#include <elapi.h>
+#include <elastos.h>
 #include <locmod.h>
 #include <stdio.h>
 #include <stdlib.h>
 // #include <_pubcrt.h>
-#include <utils/Log.h>
 
 #define STATUS_WIN32_ERROR(u) ((ECode)((u)|0x80070000))
 
@@ -14,6 +13,8 @@
 
 #define ENABLE_DUMP_CLSID    0    // debug info switch
 #if ENABLE_DUMP_CLSID
+#include <utils/Log.h>
+
 #define DUMP_CLSID(CLSID, info) \
     do { \
         ALOGD("> INSIDE %s\n", info); \

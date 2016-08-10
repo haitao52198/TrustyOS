@@ -33,8 +33,8 @@ MODULE_INCLUDES += \
 MODULE_SRCS += $(LOCAL_DIR)/carapi.cpp
 MODULE_SRCS += $(LOCAL_DIR)/locmod.cpp
 MODULE_SRCS += $(LOCAL_DIR)/todo.cpp
-
-
+MODULE_SRCS += $(LOCAL_DIR)/manifest.c
+MODULE_SRCS += $(LOCAL_DIR)/ref_app.c
 
 MODULE_DEPS += \
 	app/trusty \
