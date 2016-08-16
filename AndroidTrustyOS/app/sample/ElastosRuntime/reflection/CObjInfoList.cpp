@@ -1353,6 +1353,7 @@ ECode CObjInfoList::AcquireCBMethodInfoInfo(
     /* [in] */ UInt32 index,
     /* [in, out] */ IInterface** object)
 {
+#if 0
     if (!clsModule || !methodDescriptor || !object) {
         return E_INVALID_ARGUMENT;
     }
@@ -1379,7 +1380,7 @@ ECode CObjInfoList::AcquireCBMethodInfoInfo(
     *object = cbMethodInfoObj;
     (*object)->AddRef();
     UnlockHashTable(EntryType_CBMethod);
-
+#endif
     return NOERROR;
 }
 

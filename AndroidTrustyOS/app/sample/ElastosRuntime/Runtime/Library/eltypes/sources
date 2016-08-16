@@ -1,0 +1,18 @@
+#==========================================================================
+# Copyright (c) 2000-2008,  Elastos, Inc.  All Rights Reserved.
+#==========================================================================
+
+TARGET_NAME= eltypes
+TARGET_TYPE= lib
+
+ifneq "$(XDK_TARGET_PLATFORM)" "android"
+INCLUDES += $(MAKEDIR)/../unicode; $(MAKEDIR)/../unicode/inc;
+endif
+
+SOURCES = elquintet.cpp
+SOURCES += elstringapi.cpp
+SOURCES += ucase.cpp
+
+ELASTOS_LIBS = elstring/elstring.lib
+ELASTOS_LIBS += elrefbase/elrefbase.lib
+ELASTOS_LIBS += elcontainer/elcontainer.lib

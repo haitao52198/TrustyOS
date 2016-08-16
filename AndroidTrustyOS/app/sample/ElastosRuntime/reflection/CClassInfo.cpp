@@ -928,7 +928,8 @@ ECode CClassInfo::GetCallbackMethodInfo(
 ECode CClassInfo::RemoveAllCallbackHandlers(
     /* [in] */ PInterface server)
 {
-    return _CObject_RemoveAllCallbacks(server);
+    return NOERROR;
+//    return _CObject_RemoveAllCallbacks(server);
 }
 
 ECode CClassInfo::CreateObjInRgm(

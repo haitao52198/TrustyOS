@@ -18,8 +18,11 @@
 #include <stddef.h>
 #include <stdio.h>
 
+int main(void);
 trusty_app_manifest_t TRUSTY_APP_MANIFEST_ATTRS trusty_app_manifest =
 {
+//	.p = main,
+
 	/* UUID : {eca48f94-00aa-560e-8f8c-d94b50d484f3} */
 	{ 0xeca48f94, 0x00aa, 0x560e,
 	  { 0x8f, 0x8c, 0xd9, 0x4b, 0x50, 0xd4, 0x88, 0xff } },

@@ -134,6 +134,8 @@ ECode CConstructorInfo::CreateObjInRgm(
     /* [in] */ IArgumentList* inArgumentList,
     /* [out] */ PInterface* object)
 {
+    return NOERROR;
+#if 0
     AutoPtr<IInterface> clsObject;
     Int32 count = 0;
     ECode ec = GetParamCount(&count);
@@ -158,6 +160,7 @@ ECode CConstructorInfo::CreateObjInRgm(
     }
 
     return ec;
+#endif
 }
 
 ECode CConstructorInfo::CreateObject(

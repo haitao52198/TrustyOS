@@ -24,9 +24,11 @@ MODULE_INCLUDES += \
 	$(LOCAL_DIR)/../Runtime/Library/inc/car \
 	$(LOCAL_DIR)/../Runtime/Library/inc/elasys \
 	$(LOCAL_DIR)/../Runtime/Library/inc/clsmodule \
+	$(LOCAL_DIR)/../Runtime/Library/syscar \
 	$(LOCAL_DIR)/../../../../lib/lib/libstdc++-trusty/include \
 	$(LOCAL_DIR)/../rdk/inc \
 	$(LOCAL_DIR)/../rdk/PortingLayer \
+	$(LOCAL_DIR)/../ElRuntimeAPI \
 
 #MODULE_CPPFLAGS := -std=c++11
 
@@ -36,15 +38,15 @@ MODULE_SRCS += $(LOCAL_DIR)/CEntryList.cpp
 MODULE_SRCS += $(LOCAL_DIR)/refutil.cpp
 MODULE_SRCS += $(LOCAL_DIR)/reflection.cpp
 MODULE_SRCS += $(LOCAL_DIR)/CArgumentList.cpp
-MODULE_SRCS += $(LOCAL_DIR)/CCallbackArgumentList.cpp
-MODULE_SRCS += $(LOCAL_DIR)/CCallbackMethodInfo.cpp
+#MODULE_SRCS += $(LOCAL_DIR)/CCallbackArgumentList.cpp
+#MODULE_SRCS += $(LOCAL_DIR)/CCallbackMethodInfo.cpp
 MODULE_SRCS += $(LOCAL_DIR)/CCarArrayInfo.cpp
 MODULE_SRCS += $(LOCAL_DIR)/CVariableOfCarArray.cpp
 MODULE_SRCS += $(LOCAL_DIR)/CClassInfo.cpp
 MODULE_SRCS += $(LOCAL_DIR)/CConstantInfo.cpp
 MODULE_SRCS += $(LOCAL_DIR)/CConstructorInfo.cpp
 MODULE_SRCS += $(LOCAL_DIR)/CCppVectorInfo.cpp
-MODULE_SRCS += $(LOCAL_DIR)/CDelegateProxy.cpp
+#MODULE_SRCS += $(LOCAL_DIR)/CDelegateProxy.cpp
 MODULE_SRCS += $(LOCAL_DIR)/CEnumInfo.cpp
 MODULE_SRCS += $(LOCAL_DIR)/CEnumItemInfo.cpp
 MODULE_SRCS += $(LOCAL_DIR)/CFieldInfo.cpp
@@ -59,9 +61,25 @@ MODULE_SRCS += $(LOCAL_DIR)/CStructInfo.cpp
 MODULE_SRCS += $(LOCAL_DIR)/CVariableOfStruct.cpp
 MODULE_SRCS += $(LOCAL_DIR)/CVariableOfCppVector.cpp
 MODULE_SRCS += $(LOCAL_DIR)/CTypeAliasInfo.cpp
+MODULE_SRCS += $(LOCAL_DIR)/invoke_gnuc.S
 MODULE_SRCS += $(LOCAL_DIR)/manifest.c
-MODULE_SRCS += $(LOCAL_DIR)/ref_app.c
+MODULE_SRCS += $(LOCAL_DIR)/ref_app.cpp
+MODULE_SRCS += $(LOCAL_DIR)/pseudo-dlfcn.cpp
+MODULE_SRCS += $(LOCAL_DIR)/pseudo-misc.cpp
+MODULE_SRCS += $(LOCAL_DIR)/../Runtime/Library/elasys/sysiids.cpp
+MODULE_SRCS += $(LOCAL_DIR)/../Runtime/Library/eltypes/elstring/elstring.cpp
+MODULE_SRCS += $(LOCAL_DIR)/../Runtime/Library/eltypes/elstring/elsharedbuf.cpp
+MODULE_SRCS += $(LOCAL_DIR)/../Runtime/Library/eltypes/elstringapi.cpp
+MODULE_SRCS += $(LOCAL_DIR)/../Runtime/Library/elasys/elaatomics.cpp
+MODULE_SRCS += $(LOCAL_DIR)/../Runtime/Library/eltypes/elquintet.cpp
 
+MODULE_SRCS += $(LOCAL_DIR)/../ElRuntimeAPI/xni.cpp
+MODULE_SRCS += $(LOCAL_DIR)/../ElRuntimeAPI/implClassFactory.cpp
+
+#MODULE_SRCS += $(LOCAL_DIR)/../Runtime/Library/clsmodule/reloc.cpp
+#MODULE_SRCS += $(LOCAL_DIR)/../Runtime/Library/clsmodule/clserr.cpp
+#MODULE_SRCS += $(LOCAL_DIR)/../Runtime/Library/clsmodule/comprcls.cpp
+#MODULE_SRCS += $(LOCAL_DIR)/../Runtime/Library/clsmodule/datatype.cpp
 
 MODULE_DEPS += \
 	app/trusty \

@@ -4,6 +4,8 @@
 
 #include <asm.h>
 
+#define C_SYMBOL(symbol)    symbol
+#define C_PREFIX
     .text;
     .align 4;
     .global C_SYMBOL(invoke);
