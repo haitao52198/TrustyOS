@@ -1,0 +1,13 @@
+#==========================================================================
+# Copyright (c) 2000-2008,  Elastos, Inc.  All Rights Reserved.
+#==========================================================================
+
+TARGET_NAME= clsinfo
+TARGET_TYPE= lib
+
+INCLUDES:= $(MAKEDIR)/../libzip; $(INCLUDES)
+
+SOURCES = clserr.cpp
+SOURCES += comprcls.cpp
+SOURCES += reloc.cpp
+SOURCES += datatype.cpp

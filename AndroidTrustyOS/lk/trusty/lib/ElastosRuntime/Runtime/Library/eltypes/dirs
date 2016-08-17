@@ -1,0 +1,4 @@
+
+DIRS += elrefbase
+DIRS += elstring
+DIRS += elcontainer

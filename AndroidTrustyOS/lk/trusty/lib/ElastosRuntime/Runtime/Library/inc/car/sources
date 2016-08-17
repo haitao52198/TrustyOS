@@ -1,0 +1,10 @@
+#==========================================================================
+# Copyright (c) 2000-2008,  Elastos, Inc.  All Rights Reserved.
+#==========================================================================
+
+EXPORT_HEADERS = car.h
+EXPORT_HEADERS += uuid.h
+EXPORT_HEADERS += elaobj.h
+EXPORT_HEADERS += factory.h
+EXPORT_HEADERS += carapi.h
+EXPORT_HEADERS += eldelegate.h

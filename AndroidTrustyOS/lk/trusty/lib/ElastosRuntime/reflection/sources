@@ -1,0 +1,56 @@
+#==========================================================================
+# Copyright (c) 2000-2008,  Elastos, Inc.  All Rights Reserved.
+#==========================================================================
+
+TARGET_NAME= reflection
+TARGET_TYPE= lib
+
+C_DEFINES= -D_CAR_RUNTIME
+
+ifeq "$(XDK_TARGET_PLATFORM)" "android"
+C_FLAGS += -O0
+endif
+
+INCLUDESTEMP := $(INCLUDES);
+INCLUDES = $(MAKEDIR)/../inc;
+INCLUDES += $(INCLUDESTEMP);
+
+ifeq "$(XDK_TARGET_CPU)" "arm"
+ifneq "$(XDK_COMPILER)" "gnu"
+SOURCES = invoke_ievc.asm
+else
+SOURCES = invoke_gnuc.S
+endif
+else
+SOURCES = invoke.cpp
+endif
+
+SOURCES += CClsModule.cpp
+SOURCES += CObjInfoList.cpp
+SOURCES += CEntryList.cpp
+SOURCES += refutil.cpp
+SOURCES += reflection.cpp
+SOURCES += CArgumentList.cpp
+SOURCES += CCallbackArgumentList.cpp
+SOURCES += CCallbackMethodInfo.cpp
+SOURCES += CCarArrayInfo.cpp
+SOURCES += CVariableOfCarArray.cpp
+SOURCES += CClassInfo.cpp
+SOURCES += CConstantInfo.cpp
+SOURCES += CConstructorInfo.cpp
+SOURCES += CCppVectorInfo.cpp
+SOURCES += CDelegateProxy.cpp
+SOURCES += CEnumInfo.cpp
+SOURCES += CEnumItemInfo.cpp
+SOURCES += CFieldInfo.cpp
+SOURCES += CInterfaceInfo.cpp
+SOURCES += CIntrinsicInfo.cpp
+SOURCES += CLocalPtrInfo.cpp
+SOURCES += CLocalTypeInfo.cpp
+SOURCES += CMethodInfo.cpp
+SOURCES += CModuleInfo.cpp
+SOURCES += CParamInfo.cpp
+SOURCES += CStructInfo.cpp
+SOURCES += CVariableOfStruct.cpp
+SOURCES += CVariableOfCppVector.cpp
+SOURCES += CTypeAliasInfo.cpp

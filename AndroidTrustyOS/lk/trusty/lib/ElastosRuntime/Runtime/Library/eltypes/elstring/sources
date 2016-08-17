@@ -1,0 +1,11 @@
+#==========================================================================
+# Copyright (c) 2000-2008,  Elastos, Inc.  All Rights Reserved.
+#==========================================================================
+
+TARGET_NAME= elstring
+TARGET_TYPE= lib
+
+C_DEFINES+=-D_CAR_RUNTIME
+
+SOURCES = elsharedbuf.cpp
+SOURCES += elstring.cpp

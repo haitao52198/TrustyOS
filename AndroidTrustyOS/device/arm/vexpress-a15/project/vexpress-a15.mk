@@ -51,6 +51,7 @@ GLOBAL_DEFINES += \
 MODULES += \
 	lib/sm \
 	lib/trusty \
+	lib/ElastosRuntime/reflection \
 
 TRUSTY_USER_ARCH := arm
 
@@ -64,7 +65,8 @@ TRUSTY_PREBUILT_USER_TASKS :=
 # compiled from source
 TRUSTY_ALL_USER_TASKS := \
 	sample/skel \
-	sample/skel2\
-	sample/timer\
+	sample/skel2 \
+	sample/timer
+#	sample/ElastosRuntime/reflection
 
 EXTRA_BUILDRULES += app/trusty/user-tasks.mk
